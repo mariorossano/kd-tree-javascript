@@ -212,7 +212,10 @@
       removeNode(node);
     };
 
-    this.nearest = function (point, maxNodes, maxDistance) {
+    this.nearest = function (point, maxNodes, filter, maxDistance) {
+
+      if(!filter) filter = function(v) { return true; }
+
       var i,
         result,
         bestNodes;
@@ -248,7 +251,7 @@
         linearDistance = metric(linearPoint, node.obj);
 
         if (node.right === null && node.left === null) {
-          if (bestNodes.size() < maxNodes || ownDistance < bestNodes.peek()[1]) {
+          if ((bestNodes.size() < maxNodes || ownDistance < bestNodes.peek()[1]) && filter(node.obj)) {
             saveNode(node, ownDistance);
           }
           return;
@@ -268,7 +271,7 @@
 
         nearestSearch(bestChild);
 
-        if (bestNodes.size() < maxNodes || ownDistance < bestNodes.peek()[1]) {
+        if ((bestNodes.size() < maxNodes || ownDistance < bestNodes.peek()[1]) && filter(node.obj)) {
           saveNode(node, ownDistance);
         }
 
@@ -294,7 +297,7 @@
 
       result = [];
 
-      for (i = 0; i < maxNodes; i += 1) {
+      for (i = 0; i < maxNodes && i < bestNodes.content.length; i += 1) {
         if (bestNodes.content[i][0]) {
           result.push([bestNodes.content[i][0].obj, bestNodes.content[i][1]]);
         }
